@@ -1,2 +1,4 @@
 /.idea
 main
+!/build/config/config.conf
+/build/*

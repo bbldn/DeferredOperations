@@ -15,7 +15,7 @@ func (c *Config) Load(config map[string]string) error {
 }
 
 func (c *Config) load(config map[string]string) error {
-	data, err := ioutil.ReadFile("/etc/deferred-operation/config.conf")
+	data, err := ioutil.ReadFile("config/config.conf")
 	if err != nil {
 		return errors.New("error open config file")
 	}
