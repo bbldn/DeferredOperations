@@ -13,7 +13,8 @@ import (
 )
 
 var appConfig config.Config
-var processes map[string]*exec.Cmd
+var Processes map[string]*exec.Cmd
+var Commands map[int]string
 
 func runCommand(command string) {
 	commands := strings.Split(command, " ")
@@ -23,9 +24,22 @@ func runCommand(command string) {
 	err := cmd.Start()
 	if err == nil {
 		key := fmt.Sprintf("%d %s", cmd.Process.Pid, command)
-		processes[key] = cmd
+		Processes[key] = cmd
 		_ = cmd.Wait()
-		delete(processes, key)
+		delete(Processes, key)
+	}
+}
+
+func runCommands(commands []string) {
+	startIndex := len(Commands)
+
+	for key, command := range commands {
+		Commands[startIndex+key+1] = command
+	}
+
+	for key, command := range commands {
+		runCommand(command)
+		delete(Commands, key+startIndex+1)
 	}
 }
 
@@ -40,23 +54,32 @@ func HomeRouterHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, _ = fmt.Fprintf(w, response.Response{Ok: true}.ToJson())
 
-	command := r.Form.Get("command")
+	command := r.Form["command"]
 
 	if len(command) > 0 {
-		go runCommand(command)
+		go runCommands(command)
 	}
 }
 
 func StatRouterHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	keys := make([]string, len(processes))
+	keys := make([]string, len(Processes))
 	i := 0
-	for p := range processes {
+	for p := range Processes {
 		keys[i] = p
 		i++
 	}
+
+	i = 0
+	commands := make([]string, len(Commands))
+	for _, command := range Commands {
+		commands[i] = command
+		i++
+	}
+
 	data := make(map[string]interface{})
-	data["processes"] = keys
+	data["Processes"] = keys
+	data["Commands"] = commands
 
 	_, _ = fmt.Fprintf(w, response.Response{Ok: true, Data: data}.ToJson())
 }
@@ -74,7 +97,8 @@ func main() {
 		return
 	}
 
-	processes = make(map[string]*exec.Cmd)
+	Processes = make(map[string]*exec.Cmd)
+	Commands = make(map[int]string)
 
 	http.HandleFunc("/", HomeRouterHandler)
 	http.HandleFunc("/stat", StatRouterHandler)
