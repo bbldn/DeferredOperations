@@ -1,26 +1,18 @@
 package main
 
 import (
-	"deferredOperations/config"
+	. "deferredOperations/config"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"regexp"
 )
 
-var appConfig config.Config
+var config Config
 var apps map[string]*App
 
-func main() {
-	values, err := ParseArgs(os.Args)
-	if err != nil {
-		log.Fatal(err)
-
-		return
-	}
-
-	err = appConfig.Load(values)
+func init() {
+	err := config.Load()
 	if err != nil {
 		log.Fatal(err)
 
@@ -29,24 +21,26 @@ func main() {
 
 	apps = make(map[string]*App)
 
-	for _, section := range appConfig.Values.Sections() {
+	for _, section := range config.Values.Sections() {
 		if "DEFAULTS" != section {
 			app := App{}
-			config, _ := appConfig.Values.Items(section)
-			app.Load(config)
+			c, _ := config.Values.Items(section)
+			app.Load(c)
 			apps[section] = &app
 		}
 	}
+}
 
+func main() {
 	server := RegexpHandler{}
-	server.HandleFunc(regexp.MustCompile(`^/(.+)$`), HomeRouterHandler)
-	server.HandleFunc(regexp.MustCompile(`^/(.+)?/stat/?$`), StatRouterHandler)
+	server.HandleFunc(regexp.MustCompile(`^/(.+)?/stat$`), StatRouterHandler)
+	server.HandleFunc(regexp.MustCompile(`^/([^/]+)$`), HomeRouterHandler)
 
-	address, _ := appConfig.Values.Get("DEFAULTS", "ADDRESS")
-	port, _ := appConfig.Values.Get("DEFAULTS", "PORT")
+	address, _ := config.Values.Get("DEFAULTS", "ADDRESS")
+	port, _ := config.Values.Get("DEFAULTS", "PORT")
 
 	addr := fmt.Sprintf("%s:%s", address, port)
-	err = http.ListenAndServe(addr, server)
+	err := http.ListenAndServe(addr, server)
 	if err != nil {
 		log.Fatal("Error start server:", err)
 	}

@@ -10,11 +10,7 @@ type Config struct {
 	Values *configparser.ConfigParser
 }
 
-func (c *Config) Load(config map[string]string) error {
-	return c.load(config)
-}
-
-func (c *Config) load(config map[string]string) error {
+func (c *Config) Load() error {
 	data, err := configparser.NewConfigParserFromFile("config/config.cfg")
 	if err != nil {
 		return errors.New("error open config file")
@@ -45,6 +41,10 @@ func (c *Config) validate() error {
 	}
 
 	for _, section := range c.Values.Sections() {
+		if "DEFAULTS" == section {
+			continue
+		}
+
 		exists, _ = c.Values.HasOption(section, "APP_PATH")
 		if false == exists {
 			return errors.New(fmt.Sprintf("`%s` section not contain `APP_PATH`", section))

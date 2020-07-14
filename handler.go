@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"isatHooker/response"
 	"net/http"
 )
 
@@ -18,12 +17,12 @@ func HomeRouterHandler(w http.ResponseWriter, r *http.Request, matches []string)
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
 	if err != nil {
-		_, _ = fmt.Fprintf(w, response.Response{Ok: true, Errors: []string{"Error parse body"}}.ToJson())
+		_, _ = fmt.Fprintf(w, Response{Ok: true, Errors: []string{"Error parse body"}}.ToJson())
 
 		return
 	}
 
-	_, _ = fmt.Fprintf(w, response.Response{Ok: true}.ToJson())
+	_, _ = fmt.Fprintf(w, Response{Ok: true}.ToJson())
 
 	command := r.Form["command"]
 
@@ -61,15 +60,15 @@ func StatRouterHandler(w http.ResponseWriter, r *http.Request, matches []string)
 	data["Processes"] = keys
 	data["Commands"] = commands
 
-	_, _ = fmt.Fprintf(w, response.Response{Ok: true, Data: data}.ToJson())
+	_, _ = fmt.Fprintf(w, Response{Ok: true, Data: data}.ToJson())
 }
 
 func getApp(matches []string) (*App, bool) {
-	if 0 == len(matches) {
+	if len(matches) < 2 {
 		return nil, false
 	}
 
-	config, exists := apps[matches[0]]
+	config, exists := apps[matches[1]]
 	if false == exists {
 		return nil, false
 	}
