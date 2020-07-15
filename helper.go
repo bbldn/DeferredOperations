@@ -11,7 +11,7 @@ func runCommand(command string, app *App) {
 
 	var commands []string
 	if true == exists {
-		commands := strings.Split(command, " ")
+		commands = strings.Split(command, " ")
 		commands = append([]string{app.Config["APP_PATH"]}, commands...)
 	} else {
 		commands = strings.Split(command, " ")
