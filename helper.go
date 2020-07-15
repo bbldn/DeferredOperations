@@ -7,10 +7,18 @@ import (
 )
 
 func runCommand(command string, app *App) {
-	commands := strings.Split(command, " ")
-	commands = append([]string{app.Config["APP_PATH"]}, commands...)
+	handler, exists := app.Config["HANDLER"]
 
-	cmd := exec.Command("php", commands...)
+	var commands []string
+	if true == exists {
+		commands := strings.Split(command, " ")
+		commands = append([]string{app.Config["APP_PATH"]}, commands...)
+	} else {
+		commands = strings.Split(command, " ")
+		handler = app.Config["APP_PATH"]
+	}
+
+	cmd := exec.Command(handler, commands...)
 	err := cmd.Start()
 	if err == nil {
 		key := fmt.Sprintf("%d %s", cmd.Process.Pid, command)
