@@ -3,15 +3,15 @@ package config
 import (
 	"errors"
 	"fmt"
-	"github.com/bigkevmcd/go-configparser"
+	GoConfigParser "github.com/bigkevmcd/go-configparser"
 )
 
 type Config struct {
-	Values *configparser.ConfigParser
+	Values *GoConfigParser.ConfigParser
 }
 
 func (c *Config) Load() error {
-	data, err := configparser.NewConfigParserFromFile("config/config.cfg")
+	data, err := GoConfigParser.NewConfigParserFromFile("config/config.cfg")
 	if err != nil {
 		return errors.New("error open config file")
 	}

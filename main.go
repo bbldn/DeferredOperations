@@ -1,43 +1,47 @@
 package main
 
 import (
-	. "deferredOperations/config"
+	Application "deferredOperations/application"
+	Context "deferredOperations/context"
+	Controllers "deferredOperations/controllers"
+	Server "deferredOperations/helpers/server"
 	"fmt"
 	"log"
 	"net/http"
 	"regexp"
 )
 
-var config Config
-var apps map[string]*App
+var context Context.Context
 
 func init() {
-	err := config.Load()
+	err := context.Config.Load()
 	if err != nil {
 		log.Fatal(err)
 
 		return
 	}
 
-	apps = make(map[string]*App)
-
-	for _, section := range config.Values.Sections() {
+	context.Apps = make(map[string]*Application.App)
+	for _, section := range context.Config.Values.Sections() {
 		if "DEFAULTS" != section {
-			app := App{}
-			c, _ := config.Values.Items(section)
+			app := Application.App{}
+			c, _ := context.Config.Values.Items(section)
 			app.Load(c)
-			apps[section] = &app
+			context.Apps[section] = &app
 		}
 	}
 }
 
 func main() {
-	server := RegexpHandler{}
-	server.HandleFunc(regexp.MustCompile(`^/(.+)?/stat$`), StatRouterHandler)
-	server.HandleFunc(regexp.MustCompile(`^/([^/]+)$`), HomeRouterHandler)
+	mainController := Controllers.Main{Context: context}
 
-	address, _ := config.Values.Get("DEFAULTS", "ADDRESS")
-	port, _ := config.Values.Get("DEFAULTS", "PORT")
+	server := Server.RegexpHandler{}
+	server.AddAction(regexp.MustCompile(`^/(.+)?/stat$`), mainController.StatAction)
+	server.AddAction(regexp.MustCompile(`^/([^/]+)$`), mainController.HomeAction)
+
+	//errors ignored because config have been validated
+	address, _ := context.Config.Values.Get("DEFAULTS", "ADDRESS")
+	port, _ := context.Config.Values.Get("DEFAULTS", "PORT")
 
 	addr := fmt.Sprintf("%s:%s", address, port)
 	err := http.ListenAndServe(addr, server)

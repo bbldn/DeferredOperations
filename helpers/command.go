@@ -1,12 +1,13 @@
-package main
+package helpers
 
 import (
+	"deferredOperations/application"
 	"fmt"
 	"os/exec"
 	"strings"
 )
 
-func runCommand(command string, app *App) {
+func RunCommand(command string, app *application.App) {
 	handler, exists := app.Config["HANDLER"]
 
 	var commands []string
@@ -28,7 +29,7 @@ func runCommand(command string, app *App) {
 	}
 }
 
-func runCommands(commands []string, app *App) {
+func RunCommands(commands []string, app *application.App) {
 	startIndex := len(app.Commands)
 
 	for key, command := range commands {
@@ -36,7 +37,7 @@ func runCommands(commands []string, app *App) {
 	}
 
 	for key, command := range commands {
-		runCommand(command, app)
+		RunCommand(command, app)
 		delete(app.Commands, key+startIndex+1)
 	}
 }

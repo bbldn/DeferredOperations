@@ -1,12 +1,19 @@
-package main
+package controllers
 
 import (
+	Application "deferredOperations/application"
+	Context "deferredOperations/context"
+	Helpers "deferredOperations/helpers"
 	"fmt"
 	"net/http"
 )
 
-func HomeRouterHandler(w http.ResponseWriter, r *http.Request, matches []string) {
-	app, exists := getApp(matches)
+type Main struct {
+	Context Context.Context
+}
+
+func (m Main) HomeAction(w http.ResponseWriter, r *http.Request, matches []string) {
+	app, exists := m.getApp(matches)
 
 	if false == exists || nil == app {
 		http.NotFound(w, r)
@@ -17,22 +24,22 @@ func HomeRouterHandler(w http.ResponseWriter, r *http.Request, matches []string)
 	w.Header().Set("Content-Type", "application/json")
 	err := r.ParseForm()
 	if err != nil {
-		_, _ = fmt.Fprintf(w, Response{Ok: true, Errors: []string{"Error parse body"}}.ToJson())
+		_, _ = fmt.Fprintf(w, Helpers.Response{Ok: true, Errors: []string{"Error parse body"}}.ToJson())
 
 		return
 	}
 
-	_, _ = fmt.Fprintf(w, Response{Ok: true}.ToJson())
+	_, _ = fmt.Fprintf(w, Helpers.Response{Ok: true}.ToJson())
 
 	command := r.Form["command"]
 
 	if len(command) > 0 {
-		go runCommands(command, app)
+		go Helpers.RunCommands(command, app)
 	}
 }
 
-func StatRouterHandler(w http.ResponseWriter, r *http.Request, matches []string) {
-	app, exists := getApp(matches)
+func (m Main) StatAction(w http.ResponseWriter, r *http.Request, matches []string) {
+	app, exists := m.getApp(matches)
 
 	if false == exists || nil == app {
 		http.NotFound(w, r)
@@ -60,15 +67,15 @@ func StatRouterHandler(w http.ResponseWriter, r *http.Request, matches []string)
 	data["Processes"] = keys
 	data["Commands"] = commands
 
-	_, _ = fmt.Fprintf(w, Response{Ok: true, Data: data}.ToJson())
+	_, _ = fmt.Fprintf(w, Helpers.Response{Ok: true, Data: data}.ToJson())
 }
 
-func getApp(matches []string) (*App, bool) {
+func (m Main) getApp(matches []string) (*Application.App, bool) {
 	if len(matches) < 2 {
 		return nil, false
 	}
 
-	config, exists := apps[matches[1]]
+	config, exists := m.Context.Apps[matches[1]]
 	if false == exists {
 		return nil, false
 	}
