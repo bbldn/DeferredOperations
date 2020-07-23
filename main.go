@@ -43,8 +43,7 @@ func main() {
 	address, _ := context.Config.Values.Get("DEFAULTS", "ADDRESS")
 	port, _ := context.Config.Values.Get("DEFAULTS", "PORT")
 
-	addr := fmt.Sprintf("%s:%s", address, port)
-	err := http.ListenAndServe(addr, server)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%s", address, port), server)
 	if err != nil {
 		log.Fatal("Error start router:", err)
 	}
