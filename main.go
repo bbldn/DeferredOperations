@@ -1,9 +1,9 @@
 package main
 
 import (
-	Application "deferredOperations/application"
-	Context "deferredOperations/context"
 	Controllers "deferredOperations/controllers"
+	Application "deferredOperations/helpers/application"
+	Context "deferredOperations/helpers/context"
 	Router "deferredOperations/helpers/router"
 	"fmt"
 	"log"

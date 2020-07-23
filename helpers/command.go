@@ -1,7 +1,7 @@
 package helpers
 
 import (
-	"deferredOperations/application"
+	"deferredOperations/helpers/application"
 	"fmt"
 	"os/exec"
 	"strings"

@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	Application "deferredOperations/application"
-	Context "deferredOperations/context"
 	Helpers "deferredOperations/helpers"
+	Application "deferredOperations/helpers/application"
+	Context "deferredOperations/helpers/context"
 	"fmt"
 	"net/http"
 )
