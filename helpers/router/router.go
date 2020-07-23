@@ -1,4 +1,4 @@
-package server
+package router
 
 import (
 	"net/http"
@@ -13,15 +13,15 @@ type route struct {
 	action  action
 }
 
-type RegexpHandler struct {
+type Router struct {
 	routes []*route
 }
 
-func (h *RegexpHandler) AddAction(pattern *regexp.Regexp, handler action) {
-	h.routes = append(h.routes, &route{pattern, handler})
+func (h *Router) AddAction(pattern *regexp.Regexp, action action) {
+	h.routes = append(h.routes, &route{pattern, action})
 }
 
-func (h RegexpHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimRight(r.URL.Path, "/")
 	for _, route := range h.routes {
 		if true == route.pattern.MatchString(path) {

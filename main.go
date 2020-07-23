@@ -4,7 +4,7 @@ import (
 	Application "deferredOperations/application"
 	Context "deferredOperations/context"
 	Controllers "deferredOperations/controllers"
-	Server "deferredOperations/helpers/server"
+	Router "deferredOperations/helpers/router"
 	"fmt"
 	"log"
 	"net/http"
@@ -35,7 +35,7 @@ func init() {
 func main() {
 	mainController := Controllers.Main{Context: context}
 
-	server := Server.RegexpHandler{}
+	server := Router.Router{}
 	server.AddAction(regexp.MustCompile(`^/(.+)?/stat$`), mainController.StatAction)
 	server.AddAction(regexp.MustCompile(`^/([^/]+)$`), mainController.HomeAction)
 
@@ -46,6 +46,6 @@ func main() {
 	addr := fmt.Sprintf("%s:%s", address, port)
 	err := http.ListenAndServe(addr, server)
 	if err != nil {
-		log.Fatal("Error start server:", err)
+		log.Fatal("Error start router:", err)
 	}
 }
