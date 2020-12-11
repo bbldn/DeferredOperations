@@ -21,7 +21,7 @@ func RunCommand(command string, app *application.App) {
 
 	cmd := exec.Command(handler, commands...)
 	err := cmd.Start()
-	if err == nil {
+	if nil == err {
 		key := fmt.Sprintf("%d %s", cmd.Process.Pid, command)
 		app.Processes[key] = cmd
 		_ = cmd.Wait()

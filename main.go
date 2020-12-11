@@ -35,16 +35,17 @@ func init() {
 func main() {
 	mainController := Controllers.Main{Context: context}
 
-	server := Router.Router{}
-	server.AddAction(regexp.MustCompile(`^/(.+)?/stat$`), mainController.StatAction)
-	server.AddAction(regexp.MustCompile(`^/([^/]+)$`), mainController.HomeAction)
+	router := Router.Router{}
+	router.AddAction(regexp.MustCompile(`^/(.+)?/stat$`), mainController.StatAction)
+	router.AddAction(regexp.MustCompile(`^/([^/]+)$`), mainController.HomeAction)
 
 	//errors ignored because config have been validated
 	address, _ := context.Config.Values.Get("DEFAULTS", "ADDRESS")
 	port, _ := context.Config.Values.Get("DEFAULTS", "PORT")
+	address = fmt.Sprintf("%s:%s", address, port)
 
-	err := http.ListenAndServe(fmt.Sprintf("%s:%s", address, port), server)
-	if err != nil {
+	err := http.ListenAndServe(address, router)
+	if nil != err {
 		log.Fatal("Error start router:", err)
 	}
 }
